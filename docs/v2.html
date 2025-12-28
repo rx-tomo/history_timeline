@@ -3,66 +3,269 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>世界の歴史タイムライン（スタンドアロン版 v2）</title>
+  <title>世界の歴史タイムライン（探索スタジオ v3）</title>
+  <link rel="canonical" href="https://rx-tomo.github.io/history_timeline/v2.html">
+  <meta property="og:title" content="世界の歴史タイムライン">
+  <meta property="og:description" content="時代の長さ・同時代のつながり・世界のリズムを一枚に。指で動かして歴史の地図を探検しよう。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rx-tomo.github.io/history_timeline/v2.html">
+  <meta property="og:image" content="https://rx-tomo.github.io/history_timeline/og/og_default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="世界の歴史タイムライン">
+  <meta name="twitter:description" content="時代の長さ・同時代のつながり・世界のリズムを一枚に。指で動かして歴史の地図を探検しよう。">
+  <meta name="twitter:image" content="https://rx-tomo.github.io/history_timeline/og/og_default.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f8fafc; --panel:#ffffff; --ink:#0f172a; --muted:#475569; --line:#cbd5e1;
-      --shadow:0 10px 30px rgba(2,6,23,.06);
+      --bg:#f3eee6;
+      --bg-deep:#e4d7c7;
+      --paper:#fff7ec;
+      --ink:#1f1a14;
+      --muted:#5f5a52;
+      --accent:#c2542c;
+      --accent-2:#0f766e;
+      --accent-3:#1d4ed8;
+      --line:#d7c9b8;
+      --shadow:0 18px 50px rgba(30, 23, 16, 0.12);
+      --shadow-soft:0 10px 28px rgba(30, 23, 16, 0.08);
+      --radius:18px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "YuGothic", "Meiryo", sans-serif; background:var(--bg); color:var(--ink);}
-    .wrap{max-width:1400px; margin:0 auto; padding:24px; display:grid; gap:24px}
-    .hdr{display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap}
-    h1{margin:0; font-size:clamp(20px, 2.6vw, 28px); font-weight:800; letter-spacing:.3px}
-    .sub{color:#475569}
-    .card{background:var(--panel); border:1px solid #e5e7eb; border-radius:18px; box-shadow:var(--shadow)}
-    .side{padding:16px; display:flex; flex-direction:column; gap:18px}
-    .grid{display:grid; grid-template-columns:1fr; gap:24px}
-    @media (min-width:1024px){ .grid{grid-template-columns: 360px 1fr;} }
-    .btn{appearance:none; border:1px solid #e5e7eb; background:#fff; padding:8px 12px; border-radius:12px; cursor:pointer; box-shadow:0 2px 8px rgba(2,6,23,.04); transition:.15s}
-    .btn:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(2,6,23,.08)}
-    .btn[primary]{background:#0f172a; color:#fff; border-color:#0f172a}
-    .btn:disabled{opacity:.5; cursor:not-allowed}
-    .row{display:flex; gap:8px; flex-wrap:wrap}
-    label{font-size:12px; color:#64748b}
-    input, textarea{width:100%; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; font:inherit; color:var(--ink); background:#fff}
-    textarea{height:160px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:12px}
-    .help{font-size:12px; color:#64748b; line-height:1.6}
-    .canvas{padding:12px; overflow:hidden}
-    #svg{width:100%; height:680px; display:block}
-    .tick{stroke:#94a3b8; stroke-dasharray:2 3; opacity:.7}
-    .axis{stroke:#475569;}
-    .bgrow{fill:#ffffff}
-    .bgrow:nth-child(2n){fill:#f8fafc}
-    .period{rx:8; ry:8; stroke:rgba(0,0,0,.08)}
-    .region{font-weight:700; fill:#0f172a}
-    .label{font-size:11px; fill:#0f172a}
-    .tooltip{position:absolute; pointer-events:none; background:rgba(0,0,0,.85); color:#fff; padding:6px 10px; border-radius:10px; font-size:12px; box-shadow:0 8px 26px rgba(0,0,0,.25); opacity:0; transition:opacity .12s}
-    .legend{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-    .chip{width:12px; height:12px; border-radius:4px; display:inline-block; border:1px solid rgba(0,0,0,.08)}
+    body{
+      margin:0;
+      font-family:"Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background:linear-gradient(160deg, #f9f4ed 0%, #f1e6d8 45%, #efe3d3 100%);
+      color:var(--ink);
+    }
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:auto;
+      width:420px;
+      height:420px;
+      border-radius:50%;
+      opacity:0.28;
+      filter:blur(0.5px);
+      pointer-events:none;
+      z-index:-1;
+    }
+    body::before{
+      top:-120px;
+      right:-120px;
+      background:radial-gradient(circle, rgba(194,84,44,0.28), rgba(194,84,44,0));
+    }
+    body::after{
+      bottom:-140px;
+      left:-140px;
+      background:radial-gradient(circle, rgba(15,118,110,0.26), rgba(15,118,110,0));
+    }
+
+    .app{max-width:1400px; margin:0 auto; padding:24px 24px 90px; display:grid; gap:22px;}
+    .card{background:var(--paper); border:1px solid rgba(120,90,70,0.15); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .topbar{display:flex; justify-content:space-between; align-items:flex-end; gap:18px; flex-wrap:wrap;}
+    .title-block{max-width:620px;}
+    .eyebrow{font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-2); font-weight:700;}
+    h1{margin:6px 0 6px; font-family:"Shippori Mincho", "Noto Serif JP", serif; font-size:clamp(22px, 3vw, 34px); letter-spacing:0.6px;}
+    .subtitle{margin:0; color:var(--muted); font-size:14px; line-height:1.6;}
+    .hint{margin-top:10px; font-size:12px; color:var(--accent); display:inline-flex; align-items:center; gap:8px;}
+    .hint::before{content:"✦";}
+
+    .top-actions{display:flex; gap:8px; flex-wrap:wrap;}
+    .btn{appearance:none; border:1px solid rgba(120,90,70,0.25); background:#fff; color:var(--ink); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; transition:transform .18s ease, box-shadow .18s ease, background .18s ease; box-shadow:0 6px 16px rgba(25,18,12,0.08);}
+    .btn:hover{transform:translateY(-1px); box-shadow:0 10px 22px rgba(25,18,12,0.12);}
+    .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+    .btn.ghost{background:transparent;}
+    .btn.small{padding:8px 10px; font-size:12px;}
+    .btn:disabled{opacity:.5; cursor:not-allowed; box-shadow:none; transform:none;}
+
+    .hero{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px;}
+    .hero-card{padding:16px 18px; display:flex; flex-direction:column; gap:12px; min-height:140px; animation:rise .5s ease both;}
+    .hero-card:nth-child(2){animation-delay:.05s}
+    .hero-card:nth-child(3){animation-delay:.1s}
+    @keyframes rise{
+      from{opacity:0; transform:translateY(10px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    .focus-label{font-size:12px; color:var(--muted);}
+    .focus-value{font-size:22px; font-weight:700; color:var(--accent);}
+    .year-control{display:flex; flex-direction:column; gap:10px;}
+    input[type="range"]{width:100%; accent-color:var(--accent);}
+    .year-fields{display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:end;}
+    label{font-size:12px; color:var(--muted);}
+    input, textarea{
+      width:100%; border:1px solid rgba(120,90,70,0.22); border-radius:12px; padding:10px 12px; font:inherit; color:var(--ink); background:#fff;
+    }
+    textarea{height:160px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:12px;}
+
+    .mission-list{display:grid; gap:10px;}
+    .mission{display:grid; gap:4px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,0.7); border:1px dashed rgba(120,90,70,0.25);}
+    .mission-title{font-weight:700; font-size:13px;}
+    .mission-desc{font-size:12px; color:var(--muted);}
+
+    .stat-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
+    .stat{
+      padding:10px 12px; border-radius:12px; background:rgba(255,255,255,0.7);
+      border:1px solid rgba(120,90,70,0.18);
+    }
+    .stat-label{font-size:11px; color:var(--muted);}
+    .stat-value{font-size:16px; font-weight:700;}
+    .share-text{font-size:13px; line-height:1.6; color:var(--muted);}
+    .share-actions{display:flex; gap:8px; flex-wrap:wrap;}
+
+    .shell{display:grid; gap:22px; grid-template-columns:320px 1fr; align-items:start;}
+    .panel{padding:14px; display:flex; flex-direction:column; gap:12px; position:sticky; top:24px; align-self:start; box-shadow:var(--shadow-soft);}
+    .panel-tabs{display:flex; gap:6px; flex-wrap:wrap;}
+    .tab-btn{background:transparent; border:1px solid rgba(120,90,70,0.2); padding:6px 10px; border-radius:999px; font-size:12px; cursor:pointer;}
+    .tab-btn.active{background:var(--accent-2); color:#fff; border-color:var(--accent-2);}
+    .panel-section{display:none; gap:10px; flex-direction:column;}
+    .panel-section.active{display:flex;}
+    .panel h3{margin:4px 0 0; font-size:14px;}
+    .panel .help{font-size:12px; color:var(--muted); line-height:1.6;}
+    .row{display:flex; gap:8px; flex-wrap:wrap;}
+
+    .chip{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(120,90,70,0.2); cursor:pointer; background:#fff;}
+    .chip.active{background:var(--accent-3); color:#fff; border-color:var(--accent-3);}
+    .chip .dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+
+    .story-card{padding:10px 12px; border-radius:12px; border:1px solid rgba(120,90,70,0.2); background:#fff; display:grid; gap:6px; cursor:pointer; transition:transform .16s ease, box-shadow .16s ease;}
+    .story-card:hover{transform:translateY(-1px); box-shadow:0 8px 16px rgba(25,18,12,0.1);}
+    .story-title{font-weight:700; font-size:13px;}
+    .story-meta{font-size:12px; color:var(--muted);}
+    .story-card.active{border-color:var(--accent); box-shadow:0 10px 18px rgba(194,84,44,0.2);}
+
+    .stage{display:flex; flex-direction:column; gap:16px;}
+    .stage-head{display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(240px,1fr));}
+    .legend{padding:12px 14px; display:flex; flex-direction:column; gap:8px;}
+    .legend-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+    .legend-label{font-size:12px; color:var(--muted);}
+
+    .canvas{padding:12px; position:relative; overflow:hidden;}
+    #svg{width:100%; height:clamp(360px, 60vh, 720px); display:block; touch-action:none;}
+
+    .tooltip{position:absolute; pointer-events:none; background:rgba(25,18,12,0.9); color:#fff; padding:8px 12px; border-radius:12px; font-size:12px; box-shadow:0 8px 26px rgba(0,0,0,.3); opacity:0; transition:opacity .12s}
+
+    .inspector{padding:14px 16px; display:grid; gap:10px;}
+    .inspector-title{font-weight:700; font-size:14px;}
+    .inspector-meta{font-size:12px; color:var(--muted);}
+    .inspector-body{display:grid; gap:8px; font-size:13px; line-height:1.6;}
+    .tag{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; background:rgba(15,118,110,0.12); color:var(--accent-2); border:1px solid rgba(15,118,110,0.25);}
+
+    .search-results{display:grid; gap:8px;}
+    .search-item{padding:8px 10px; border-radius:10px; border:1px solid rgba(120,90,70,0.2); background:#fff; display:grid; gap:4px; cursor:pointer;}
+    .search-item small{color:var(--muted);}
+
+    .mobile-bar{display:none; position:fixed; left:0; right:0; bottom:0; padding:10px 16px; gap:8px; background:rgba(250,246,240,0.92); backdrop-filter:blur(10px); border-top:1px solid rgba(120,90,70,0.2);}
+
+    .note{font-size:12px; color:var(--muted);}
+
+    .event-marker{stroke:#1f2937; stroke-width:1;}
+    .event-marker.selected{stroke-width:2;}
+    .period.selected{stroke:#1f2937; stroke-width:2;}
+
+    @media (max-width: 980px){
+      .shell{grid-template-columns:1fr;}
+      .panel{position:fixed; left:0; right:0; bottom:0; top:auto; max-height:70vh; transform:translateY(110%); transition:transform .25s ease; border-radius:18px 18px 0 0; z-index:20;}
+      .panel[data-open="true"]{transform:translateY(0);}
+      .panel::before{content:""; width:40px; height:4px; border-radius:999px; background:rgba(120,90,70,0.35); align-self:center;}
+      .mobile-bar{display:flex; justify-content:space-between;}
+      .app{padding-bottom:120px;}
+      .year-fields{grid-template-columns:1fr;}
+      .top-actions{width:100%;}
+      #svg{height:52vh;}
+      body[data-panel-open="true"] .mobile-bar{opacity:0; pointer-events:none;}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important;}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hdr">
-      <div>
-        <h1>世界の歴史タイムライン（比較可視化）</h1>
-        <div class="sub">同じ時間軸で、日本・西洋・東南アジア・南米などの時代の長さを横バーで比較。</div>
+  <div class="app">
+    <header class="topbar">
+      <div class="title-block">
+        <div class="eyebrow">History Timeline Lab</div>
+        <h1>世界の歴史タイムライン</h1>
+        <p class="subtitle">時代の長さ・同時代のつながり・世界のリズムを一枚に。指で動かして歴史の地図を探検しよう。</p>
+        <div class="hint">スマホではピンチでズーム、スワイプで年代移動、タップで詳細が開きます。</div>
       </div>
-      <div class="row">
-        <button id="fit" class="btn" primary>全体表示</button>
-        <button id="zin" class="btn">ズーム +</button>
-        <button id="zout" class="btn">ズーム −</button>
-        <button id="exsvg" class="btn">SVG保存</button>
-        <button id="expng" class="btn">PNG保存</button>
+      <div class="top-actions">
+        <button id="fit" class="btn primary">全体表示</button>
+        <button id="zin" class="btn">ズーム＋</button>
+        <button id="zout" class="btn">ズーム−</button>
+        <button id="exsvg" class="btn ghost">SVG保存</button>
+        <button id="expng" class="btn ghost">PNG保存</button>
       </div>
-    </div>
+    </header>
 
-    <div class="grid">
-      <aside class="card side">
-        <section>
-          <h3 style="margin:0 0 8px;font-size:14px">表示範囲（年）</h3>
+    <section class="hero">
+      <div class="hero-card card">
+        <div class="focus-label">フォーカス年</div>
+        <div class="focus-value" id="focusLabel">西暦 0</div>
+        <div class="year-control">
+          <input id="yearSlider" type="range" min="-14000" max="2025" step="1" value="0" aria-label="年スライダー">
+          <div class="year-fields">
+            <label>年
+              <input id="yearInput" type="number" value="0">
+            </label>
+            <button id="jumpYear" class="btn small">年へ移動</button>
+            <button id="centerYear" class="btn small">中央に寄せる</button>
+          </div>
+        </div>
+      </div>
+      <div class="hero-card card">
+        <div class="focus-label">今日のミッション</div>
+        <div class="mission-list" id="missions"></div>
+      </div>
+      <div class="hero-card card">
+        <div class="focus-label">現在の表示</div>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">表示中の地域</div>
+            <div class="stat-value" id="statRegions">-</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">イベント数</div>
+            <div class="stat-value" id="statEvents">-</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">期間幅</div>
+            <div class="stat-value" id="statSpan">-</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">ストーリー</div>
+            <div class="stat-value" id="statStory">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-card card" id="shareCard">
+        <div class="focus-label">SNSシェア</div>
+        <div class="share-text" id="shareText">テーマやストーリーを選ぶと共有リンクが作られます。</div>
+        <div class="row share-actions">
+          <button id="shareX" class="btn small">Xで投稿</button>
+          <button id="copyLink" class="btn small">リンクをコピー</button>
+        </div>
+        <div class="note" id="shareHint">リンクにはテーマ・年代・表示範囲が含まれます。</div>
+      </div>
+    </section>
+
+    <div class="shell">
+      <aside class="panel card" id="panel" data-open="false">
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab-btn="range">範囲</button>
+          <button class="tab-btn" data-tab-btn="layers">レイヤー</button>
+          <button class="tab-btn" data-tab-btn="story">ストーリー</button>
+          <button class="tab-btn" data-tab-btn="search">検索</button>
+          <button class="tab-btn" data-tab-btn="data">データ</button>
+        </div>
+
+        <section class="panel-section active" data-tab="range">
+          <h3>表示範囲（年）</h3>
           <div class="row">
             <label style="flex:1">開始
               <input id="start" type="number" value="-14000">
@@ -71,105 +274,195 @@
               <input id="end" type="number" value="2025">
             </label>
           </div>
-          <div class="row" style="margin-top:6px">
-            <button class="btn preset" data-p="-14000,2025">全期間</button>
-            <button class="btn preset" data-p="0,2025">西暦〜</button>
-            <button class="btn preset" data-p="1000,2025">1000年〜</button>
-            <button class="btn preset" data-p="1500,2025">1500年〜</button>
-            <button class="btn preset" data-p="1800,2025">1800年〜</button>
-            <button class="btn preset" data-p="1900,2025">1900年〜</button>
+          <div class="row">
+            <button class="btn small preset" data-p="-14000,2025">全期間</button>
+            <button class="btn small preset" data-p="0,2025">西暦〜</button>
+            <button class="btn small preset" data-p="1000,2025">1000年〜</button>
+            <button class="btn small preset" data-p="1500,2025">1500年〜</button>
+            <button class="btn small preset" data-p="1800,2025">1800年〜</button>
+            <button class="btn small preset" data-p="1900,2025">1900年〜</button>
           </div>
-          <div class="row" style="margin-top:8px">
-            <button id="apply" class="btn" style="width:100%" primary>表示範囲を適用</button>
-          </div>
+          <button id="apply" class="btn primary">表示範囲を適用</button>
         </section>
 
-        <section>
-          <h3 style="margin:0 0 8px;font-size:14px">レイヤー（地域 ON/OFF）</h3>
+        <section class="panel-section" data-tab="layers">
+          <h3>レイヤー（地域）</h3>
           <div id="toggles" class="row" style="flex-direction:column; align-items:flex-start"></div>
+          <h3>テーマフィルター</h3>
+          <div id="tagFilters" class="row"></div>
+          <div class="help">テーマを選ぶと関連イベントだけを表示。複数選択OK。</div>
         </section>
 
-        <section>
-          <h3 style="margin:0 0 8px;font-size:14px">データの入出力</h3>
-          <p class="help">JSONを編集して独自の時代区分を追加できます（BCEはマイナス）</p>
+        <section class="panel-section" data-tab="story">
+          <h3>ストーリーモード</h3>
+          <div class="help">短い物語を選ぶと、同時代の世界がまとまって見える。</div>
+          <div id="storyList" class="row" style="flex-direction:column"></div>
+          <button id="clearStory" class="btn small">ストーリー解除</button>
+        </section>
+
+        <section class="panel-section" data-tab="search">
+          <h3>探索検索</h3>
+          <input id="searchInput" type="text" placeholder="例：江戸 / 交易 / インカ">
+          <div id="searchResults" class="search-results"></div>
+        </section>
+
+        <section class="panel-section" data-tab="data">
+          <h3>データの入出力</h3>
+          <p class="help">JSONを編集して独自の時代区分を追加できます（BCEはマイナス）。</p>
           <textarea id="json"></textarea>
-          <div class="row" style="margin-top:6px">
-            <button id="applyjson" class="btn">JSONを反映</button>
-            <button id="resetjson" class="btn">JSONをリセット</button>
+          <div class="row">
+            <button id="applyjson" class="btn small">JSONを反映</button>
+            <button id="resetjson" class="btn small">JSONをリセット</button>
           </div>
-        </section>
-
-        <section class="help">
-          <p>注記：各時代の境界は諸説あります。ここでは代表的な年代を便宜採用。</p>
-          <p>バーのホバーで詳細。ドラッグでパン、ホイールでズーム。</p>
+          <div class="note">イベントやストーリーは上部のデータ定義で管理しています。</div>
         </section>
       </aside>
 
-      <main class="card canvas" id="canvas">
-        <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
-        <div id="tip" class="tooltip"></div>
+      <main class="stage">
+        <div class="stage-head">
+          <div class="legend card">
+            <div class="legend-label">インタラクション</div>
+            <div class="legend-row">
+              <span class="tag">タップで詳細</span>
+              <span class="tag">ピンチでズーム</span>
+              <span class="tag">スワイプで年代移動</span>
+            </div>
+            <div class="legend-label">イベントテーマ</div>
+            <div class="legend-row" id="tagLegend"></div>
+          </div>
+          <div class="legend card">
+            <div class="legend-label">同時代スナップ</div>
+            <div id="snapshot" class="note"></div>
+          </div>
+        </div>
+
+        <div class="canvas card" id="canvas">
+          <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div id="tip" class="tooltip"></div>
+        </div>
+
+        <div class="inspector card" id="inspector">
+          <div class="inspector-title">発見ノート</div>
+          <div class="inspector-meta" id="selectionMeta">タップした要素の情報がここに表示されます。</div>
+          <div class="inspector-body" id="selectionBody"></div>
+        </div>
       </main>
     </div>
+
+    <nav class="mobile-bar" id="mobileBar">
+      <button class="btn ghost" data-tab-open="range">範囲</button>
+      <button class="btn ghost" data-tab-open="layers">レイヤー</button>
+      <button class="btn ghost" data-tab-open="story">ストーリー</button>
+      <button class="btn ghost" data-tab-open="search">検索</button>
+      <button class="btn primary" id="panelToggle">操作</button>
+    </nav>
   </div>
 
 <script>
-// ===== データ初期値 =====
+// ===== データ定義 =====
 const NOW = 2025;
+const BASE_SHARE_URL = "https://rx-tomo.github.io/history_timeline/v2.html";
 const INITIAL = [
   { name: "日本", periods: [
-    { name: "縄文", start: -14000, end: -300 },
-    { name: "弥生", start: -300, end: 300 },
-    { name: "古墳", start: 250, end: 538 },
-    { name: "飛鳥", start: 538, end: 710 },
-    { name: "奈良", start: 710, end: 794 },
-    { name: "平安", start: 794, end: 1185 },
-    { name: "鎌倉", start: 1185, end: 1333 },
-    { name: "室町", start: 1336, end: 1573 },
-    { name: "安土桃山", start: 1573, end: 1603 },
-    { name: "江戸", start: 1603, end: 1868 },
-    { name: "明治", start: 1868, end: 1912 },
-    { name: "大正", start: 1912, end: 1926 },
-    { name: "昭和", start: 1926, end: 1989 },
-    { name: "平成", start: 1989, end: 2019 },
-    { name: "令和", start: 2019, end: NOW }
+    { name: "縄文", start: -14000, end: -300, tags:["生活"], summary:"狩猟採集と土器文化が長く続いた時代。" },
+    { name: "弥生", start: -300, end: 300, tags:["生活","技術"], summary:"稲作が広まり、集落と身分差が生まれる。" },
+    { name: "古墳", start: 250, end: 538, tags:["政治"], summary:"巨大古墳とヤマト政権の形成。" },
+    { name: "飛鳥", start: 538, end: 710, tags:["政治","宗教"], summary:"仏教伝来、律令国家への準備。" },
+    { name: "奈良", start: 710, end: 794, tags:["政治","文化"], summary:"都の成立と正史の編纂。" },
+    { name: "平安", start: 794, end: 1185, tags:["文化"], summary:"貴族文化が花開き、武士が台頭。" },
+    { name: "鎌倉", start: 1185, end: 1333, tags:["政治","戦争"], summary:"武家政権と元寇。" },
+    { name: "室町", start: 1336, end: 1573, tags:["文化","戦争"], summary:"下克上と室町文化。" },
+    { name: "安土桃山", start: 1573, end: 1603, tags:["政治","戦争"], summary:"天下統一と南蛮文化。" },
+    { name: "江戸", start: 1603, end: 1868, tags:["政治","文化"], summary:"鎖国と都市文化、安定の時代。" },
+    { name: "明治", start: 1868, end: 1912, tags:["政治","技術"], summary:"近代化と社会の大転換。" },
+    { name: "大正", start: 1912, end: 1926, tags:["文化"], summary:"大正デモクラシーと大衆文化。" },
+    { name: "昭和", start: 1926, end: 1989, tags:["戦争","技術"], summary:"戦争と復興、高度経済成長。" },
+    { name: "平成", start: 1989, end: 2019, tags:["生活","技術"], summary:"情報化と社会の多様化。" },
+    { name: "令和", start: 2019, end: NOW, tags:["生活","技術"], summary:"デジタル化と新しい社会。" }
   ]},
   { name: "西洋（ヨーロッパ）", periods: [
-    { name: "先史（新石器〜青銅器）", start: -7000, end: -1200 },
-    { name: "古典古代", start: -800, end: 476 },
-    { name: "中世", start: 476, end: 1453 },
-    { name: "ルネサンス", start: 1300, end: 1600 },
-    { name: "近世", start: 1500, end: 1800 },
-    { name: "産業革命期", start: 1760, end: 1914 },
-    { name: "20世紀（現代）", start: 1914, end: 1991 },
-    { name: "同時代", start: 1991, end: NOW }
+    { name: "先史（新石器〜青銅器）", start: -7000, end: -1200, tags:["生活","技術"], summary:"農耕と金属器の広がり。" },
+    { name: "古典古代", start: -800, end: 476, tags:["政治","文化"], summary:"ギリシア・ローマ文明の時代。" },
+    { name: "中世", start: 476, end: 1453, tags:["宗教","戦争"], summary:"封建制と宗教の時代。" },
+    { name: "ルネサンス", start: 1300, end: 1600, tags:["文化"], summary:"芸術と学問が再生。" },
+    { name: "近世", start: 1500, end: 1800, tags:["交易","政治"], summary:"大航海と国民国家の形成。" },
+    { name: "産業革命期", start: 1760, end: 1914, tags:["技術","生活"], summary:"機械化と都市化が進む。" },
+    { name: "20世紀（現代）", start: 1914, end: 1991, tags:["戦争","政治"], summary:"二度の大戦と冷戦。" },
+    { name: "同時代", start: 1991, end: NOW, tags:["技術","生活"], summary:"EU統合とグローバル化。" }
   ]},
   { name: "東南アジア（代表的王朝）", periods: [
-    { name: "ホアビン文化", start: -10000, end: -2000 },
-    { name: "扶南", start: 50, end: 550 },
-    { name: "真臘", start: 550, end: 802 },
-    { name: "クメール帝国", start: 802, end: 1431 },
-    { name: "シュリーヴィジャヤ", start: 650, end: 1377 },
-    { name: "マジャパヒト", start: 1293, end: 1527 },
-    { name: "アユタヤ", start: 1351, end: 1767 },
-    { name: "ラタナコーシン（バンコク）", start: 1782, end: NOW },
-    { name: "植民地期（英・仏・蘭）", start: 1511, end: 1957 }
+    { name: "ホアビン文化", start: -10000, end: -2000, tags:["生活"], summary:"旧石器文化から農耕へ。" },
+    { name: "扶南", start: 50, end: 550, tags:["交易","政治"], summary:"海上交易で繁栄。" },
+    { name: "真臘", start: 550, end: 802, tags:["政治"], summary:"内陸勢力が拡大。" },
+    { name: "クメール帝国", start: 802, end: 1431, tags:["宗教","文化"], summary:"アンコール遺跡に代表される王朝。" },
+    { name: "シュリーヴィジャヤ", start: 650, end: 1377, tags:["交易"], summary:"海上交易を支配した王国。" },
+    { name: "マジャパヒト", start: 1293, end: 1527, tags:["政治"], summary:"島嶼部の覇権。" },
+    { name: "アユタヤ", start: 1351, end: 1767, tags:["交易","文化"], summary:"交易都市として繁栄。" },
+    { name: "ラタナコーシン（バンコク）", start: 1782, end: NOW, tags:["政治"], summary:"近代タイの中心。" },
+    { name: "植民地期（英・仏・蘭）", start: 1511, end: 1957, tags:["政治","戦争"], summary:"欧州列強の支配と独立運動。" }
   ]},
   { name: "南米（アンデス中心）", periods: [
-    { name: "ノルテ・チコ（カラル）", start: -3500, end: -1800 },
-    { name: "チャビン", start: -900, end: -200 },
-    { name: "モチェ", start: 100, end: 700 },
-    { name: "ナスカ", start: 100, end: 800 },
-    { name: "ワリ", start: 600, end: 1100 },
-    { name: "ティワナク", start: 500, end: 1000 },
-    { name: "チムー", start: 900, end: 1470 },
-    { name: "インカ帝国", start: 1438, end: 1533 },
-    { name: "スペイン植民地期", start: 1533, end: 1821 },
-    { name: "独立・共和期", start: 1821, end: NOW }
+    { name: "ノルテ・チコ（カラル）", start: -3500, end: -1800, tags:["文化"], summary:"世界最古級の都市文明。" },
+    { name: "チャビン", start: -900, end: -200, tags:["宗教"], summary:"宗教儀礼と石彫文化。" },
+    { name: "モチェ", start: 100, end: 700, tags:["文化"], summary:"精巧な土器と灌漑。" },
+    { name: "ナスカ", start: 100, end: 800, tags:["文化"], summary:"地上絵で知られる文化。" },
+    { name: "ワリ", start: 600, end: 1100, tags:["政治"], summary:"広域支配の先駆け。" },
+    { name: "ティワナク", start: 500, end: 1000, tags:["宗教"], summary:"高地で栄えた宗教国家。" },
+    { name: "チムー", start: 900, end: 1470, tags:["政治"], summary:"北部海岸で勢力拡大。" },
+    { name: "インカ帝国", start: 1438, end: 1533, tags:["政治","交易"], summary:"広大な道路網と統治。" },
+    { name: "スペイン植民地期", start: 1533, end: 1821, tags:["戦争","政治"], summary:"征服と植民地支配。" },
+    { name: "独立・共和期", start: 1821, end: NOW, tags:["政治"], summary:"独立と近代国家形成。" }
   ]}
+];
+
+const EVENTS = [
+  { name:"農耕の広がり", year:-8000, region:"西洋（ヨーロッパ）", tags:["生活","技術"], summary:"農耕が定着し村が成長。" },
+  { name:"縄文土器の発展", year:-5000, region:"日本", tags:["文化"], summary:"土器と定住の文化が成熟。" },
+  { name:"稲作の本格化", year:-300, region:"日本", tags:["生活","技術"], summary:"水田稲作が社会を変える。" },
+  { name:"ローマ帝国の最盛期", year:117, region:"西洋（ヨーロッパ）", tags:["政治","交易"], summary:"地中海世界の統合が進む。" },
+  { name:"仏教の広がり", year:600, region:"東南アジア（代表的王朝）", tags:["宗教","文化"], summary:"交易とともに宗教が伝播。" },
+  { name:"アンコールの都市建設", year:1200, region:"東南アジア（代表的王朝）", tags:["文化","政治"], summary:"巨大都市と水利技術。" },
+  { name:"インカの道路網", year:1450, region:"南米（アンデス中心）", tags:["交易","政治"], summary:"長距離交通が帝国を結ぶ。" },
+  { name:"大航海時代", year:1500, region:"西洋（ヨーロッパ）", tags:["交易","技術"], summary:"新航路の開拓が世界をつなぐ。" },
+  { name:"明治維新", year:1868, region:"日本", tags:["政治","技術"], summary:"近代化と国家改革。" },
+  { name:"産業革命の拡大", year:1800, region:"西洋（ヨーロッパ）", tags:["技術","生活"], summary:"機械化が社会構造を変える。" },
+  { name:"独立運動の高まり", year:1821, region:"南米（アンデス中心）", tags:["政治"], summary:"植民地から共和国へ。" },
+  { name:"デジタル時代", year:1995, region:"西洋（ヨーロッパ）", tags:["技術","生活"], summary:"インターネットが日常へ。" }
+];
+
+const TAGS = [
+  { id:"政治", color:"#c2542c" },
+  { id:"文化", color:"#8b5e34" },
+  { id:"技術", color:"#1d4ed8" },
+  { id:"宗教", color:"#0f766e" },
+  { id:"戦争", color:"#b91c1c" },
+  { id:"交易", color:"#a16207" },
+  { id:"生活", color:"#15803d" }
+];
+const TAG_ID_SET = new Set(TAGS.map(t=>t.id));
+
+const STORIES = [
+  { id:"dawn", title:"文明の夜明け", range:[-3500,-500], focus:-1200, summary:"農耕と都市が生まれ、地域ごとに文明が立ち上がる。" },
+  { id:"empires", title:"帝国と宗教の広がり", range:[0,1200], focus:600, summary:"大帝国の興亡と宗教の拡大が同時進行。" },
+  { id:"oceans", title:"海がつないだ世界", range:[1300,1700], focus:1500, summary:"交易路が広がり、遠い地域が結びつく。" },
+  { id:"industry", title:"産業革命と近代", range:[1750,1914], focus:1868, summary:"技術革新が生活を一変させる。" },
+  { id:"modern", title:"現代のリズム", range:[1914,2025], focus:1990, summary:"世界規模の変化が連続する時代。" }
+];
+
+const MISSIONS = [
+  { title:"1500年ごろの同時代を探そう", desc:"日本と南米でどんな時代が並んでいる？", year:1500 },
+  { title:"技術の波を追え", desc:"1800年ごろの技術変化を見つけよう。", year:1800 },
+  { title:"宗教が広がる時期", desc:"600年付近で世界の変化を見よう。", year:600 }
 ];
 
 let data = JSON.parse(JSON.stringify(INITIAL));
 let visible = Object.fromEntries(data.map(d=>[d.name,true]));
+let activeTags = new Set();
+let activeStory = null;
+let selection = null;
+let focusYear = 0;
+let shareUrl = BASE_SHARE_URL;
+let shareSyncTimer = null;
 
 // ===== DOM =====
 const svg = document.getElementById('svg');
@@ -178,37 +471,150 @@ const toggles = document.getElementById('toggles');
 const jsonArea = document.getElementById('json');
 const inputStart = document.getElementById('start');
 const inputEnd = document.getElementById('end');
+const focusLabel = document.getElementById('focusLabel');
+const yearSlider = document.getElementById('yearSlider');
+const yearInput = document.getElementById('yearInput');
+const selectionMeta = document.getElementById('selectionMeta');
+const selectionBody = document.getElementById('selectionBody');
+const snapshot = document.getElementById('snapshot');
+const missionsEl = document.getElementById('missions');
+const statRegions = document.getElementById('statRegions');
+const statEvents = document.getElementById('statEvents');
+const statSpan = document.getElementById('statSpan');
+const statStory = document.getElementById('statStory');
+const shareText = document.getElementById('shareText');
+const shareHint = document.getElementById('shareHint');
+const shareX = document.getElementById('shareX');
+const copyLink = document.getElementById('copyLink');
+const tagFilters = document.getElementById('tagFilters');
+const tagLegend = document.getElementById('tagLegend');
+const storyList = document.getElementById('storyList');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const panel = document.getElementById('panel');
 
-// 安全なID生成（UTF-8対応・英数字のみ）
+// ===== Utils =====
 function safeIdFromString(s){
   return 'chk_' + Array.from(s).map(ch => ch.codePointAt(0).toString(16)).join('');
 }
-
-function colorFor(name){
-  const palette = ["#2563eb","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4","#f97316","#22c55e","#e11d48","#a855f7","#14b8a6","#84cc16","#d946ef","#f43f5e","#0ea5e9","#6366f1","#65a30d","#fb7185","#ea580c","#059669"];
-  let h=0; for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
-  return palette[Math.abs(h)%palette.length];
-}
-function fmtYear(y){ return y<0 ? `紀元前 ${Math.abs(y)}` : `${y}`; }
+function fmtYear(y){ return y<0 ? `紀元前 ${Math.abs(y)}` : `西暦 ${y}`; }
 function domain(){
   let min=Infinity, max=-Infinity;
   data.forEach(r=>r.periods.forEach(p=>{ if(p.start<min)min=p.start; if(p.end>max)max=p.end; }));
+  EVENTS.forEach(ev=>{ if(ev.year<min)min=ev.year; if(ev.year>max)max=ev.year; });
   return [min, Math.max(max, NOW)];
+}
+function colorForRegion(name){
+  const palette = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#0f766e", "#ea580c", "#a16207", "#0ea5e9"];
+  let h=0; for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
+  return palette[Math.abs(h)%palette.length];
+}
+function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
+
+function buildShareParams(){
+  const params = new URLSearchParams();
+  if(activeTags.size) params.set('theme', [...activeTags].join(','));
+  if(activeStory) params.set('story', activeStory.id);
+  if(Math.round(focusYear) !== 0) params.set('year', Math.round(focusYear));
+  const range = [Math.round(xDomain[0]), Math.round(xDomain[1])];
+  if(fullDomain && (range[0] !== Math.round(fullDomain[0]) || range[1] !== Math.round(fullDomain[1]))){
+    params.set('range', `${range[0]},${range[1]}`);
+  }
+  const visibleRegions = data.filter(r=>visible[r.name]).map(r=>r.name);
+  if(visibleRegions.length !== data.length){
+    params.set('regions', visibleRegions.join(','));
+  }
+  return params;
+}
+
+function buildShareText(){
+  const pieces = [];
+  if(activeStory) pieces.push(`ストーリー「${activeStory.title}」`);
+  if(activeTags.size) pieces.push(`テーマ：${[...activeTags].join('・')}`);
+  if(pieces.length === 0) pieces.push('世界の歴史を探索中');
+  return `世界の歴史タイムライン｜${pieces.join(' / ')}（${fmtYear(focusYear)}）`;
+}
+
+function updateShareUI(){
+  const params = buildShareParams();
+  const base = new URL(BASE_SHARE_URL);
+  base.search = params.toString();
+  shareUrl = base.toString();
+  if(shareText) shareText.textContent = buildShareText();
+  if(shareHint){
+    shareHint.textContent = activeStory ? `今は「${activeStory.title}」を表示中。` : 'テーマや年代を変えるとリンクが更新されます。';
+  }
+  try{
+    const current = new URL(window.location.href);
+    current.search = params.toString();
+    window.history.replaceState(null, '', current.toString());
+  }catch(err){
+    // Ignore history update failures (e.g. file:// origin constraints).
+  }
+}
+
+function scheduleShareSync(){
+  if(shareSyncTimer) return;
+  shareSyncTimer = window.setTimeout(()=>{
+    shareSyncTimer = null;
+    updateShareUI();
+  }, 160);
+}
+
+function applyParamsFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const themeParam = params.get('theme');
+  if(themeParam){
+    activeTags = new Set(themeParam.split(',').map(t=>t.trim()).filter(t=>TAG_ID_SET.has(t)));
+  }
+
+  const storyParam = params.get('story');
+  if(storyParam){
+    const story = STORIES.find(s=>s.id === storyParam);
+    if(story) activeStory = story;
+  }
+
+  const yearParam = params.get('year');
+  if(yearParam !== null && !Number.isNaN(Number(yearParam))){
+    focusYear = Number(yearParam);
+  }else if(activeStory && activeStory.focus){
+    focusYear = activeStory.focus;
+  }
+
+  const rangeParam = params.get('range');
+  if(rangeParam){
+    const [s,e] = rangeParam.split(',').map(Number);
+    if(!Number.isNaN(s) && !Number.isNaN(e) && s < e){
+      xDomain = [s, e];
+    }
+  }else if(activeStory){
+    xDomain = [...activeStory.range];
+  }
+
+  const regionsParam = params.get('regions');
+  if(regionsParam){
+    const selected = new Set(regionsParam.split(',').map(t=>t.trim()).filter(Boolean));
+    Object.keys(visible).forEach(name=>{ visible[name] = selected.has(name); });
+  }
 }
 
 // ===== Layout =====
-let margin = {top:40, right:24, bottom:40, left:140};
+let margin = {top:44, right:24, bottom:44, left:160};
 let view = {w: svg.clientWidth || 1200, h: svg.clientHeight || 680};
-let xDomain = domain();
-function xScale(v){ const [s,e]=xDomain; const L= view.w - margin.left - margin.right; return margin.left + (v - s) / (e - s) * L; }
+let fullDomain = domain();
+let xDomain = [...fullDomain];
+let drawQueued = false;
 
+function xScale(v){
+  const [s,e]=xDomain; const L= view.w - margin.left - margin.right;
+  return margin.left + (v - s) / (e - s) * L;
+}
 function yBands(){
   const regs = data.filter(r=>visible[r.name]);
   const innerTop = margin.top;
-  const rowH = Math.max(28, (view.h - margin.top - margin.bottom) / Math.max(regs.length, 1));
+  const rowH = Math.max(30, (view.h - margin.top - margin.bottom) / Math.max(regs.length, 1));
   return { regs, rowH, y:(name)=> innerTop + regs.findIndex(r=>r.name===name)*rowH };
 }
-
 function ticks(){
   const s = xDomain[0], e = xDomain[1], span = e - s;
   let step = 5;
@@ -220,16 +626,23 @@ function ticks(){
   return {arr, step};
 }
 
+function scheduleDraw(){
+  if(drawQueued) return;
+  drawQueued = true;
+  requestAnimationFrame(()=>{ drawQueued=false; draw(); });
+}
+
 // ===== Render =====
 function clear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
 
 function draw(){
   view = {w: svg.clientWidth || 1200, h: svg.clientHeight || 680};
+  const compact = view.w < 700;
+  margin = {top:44, right:24, bottom:44, left: compact ? 110 : 170};
   clear(svg);
 
-  // grid + axis
   const {arr} = ticks();
-  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+  const g = document.createElementNS(svg.namespaceURI,"g");
   svg.appendChild(g);
 
   // grid lines
@@ -238,71 +651,87 @@ function draw(){
     const line = document.createElementNS(svg.namespaceURI,"line");
     line.setAttribute("x1", x); line.setAttribute("x2", x);
     line.setAttribute("y1", margin.top); line.setAttribute("y2", view.h - margin.bottom);
-    line.setAttribute("class","tick");
-    line.setAttribute("stroke","#94a3b8");
-    line.setAttribute("stroke-dasharray","2 3");
+    line.setAttribute("stroke","#b8aa97");
+    line.setAttribute("stroke-dasharray","2 4");
+    line.setAttribute("opacity","0.7");
     g.appendChild(line);
 
     const label = document.createElementNS(svg.namespaceURI,"text");
     label.textContent = fmtYear(t);
-    label.setAttribute("x", x); label.setAttribute("y", view.h - margin.bottom + 16);
+    label.setAttribute("x", x); label.setAttribute("y", view.h - margin.bottom + 18);
     label.setAttribute("text-anchor","middle");
-    label.setAttribute("fill","#334155");
-    label.setAttribute("font-size","11");
+    label.setAttribute("fill","#5f5a52");
+    label.setAttribute("font-size", compact ? "10" : "11");
     g.appendChild(label);
   });
 
-  // x-axis baseline
   const base = document.createElementNS(svg.namespaceURI,"line");
   base.setAttribute("x1", margin.left);
   base.setAttribute("x2", view.w - margin.right);
   base.setAttribute("y1", view.h - margin.bottom);
   base.setAttribute("y2", view.h - margin.bottom);
-  base.setAttribute("stroke","#475569");
-  base.setAttribute("stroke-width","1.2");
+  base.setAttribute("stroke","#6a5d50");
+  base.setAttribute("stroke-width","1.3");
   svg.appendChild(base);
 
-  // rows
   const {regs, rowH, y} = yBands();
-  // backgrounds
   regs.forEach((r,i)=>{
     const rect = document.createElementNS(svg.namespaceURI,"rect");
     rect.setAttribute("x", margin.left);
     rect.setAttribute("y", y(r.name));
     rect.setAttribute("width", view.w - margin.left - margin.right);
     rect.setAttribute("height", rowH);
-    rect.setAttribute("fill", i%2 ? "#f8fafc" : "#ffffff");
+    rect.setAttribute("fill", i%2 ? "#f5ede2" : "#fff8ef");
     svg.appendChild(rect);
   });
 
-  // region labels
   regs.forEach(r=>{
     const text = document.createElementNS(svg.namespaceURI,"text");
     text.textContent = r.name;
-    text.setAttribute("x", margin.left - 10);
+    text.setAttribute("x", margin.left - 12);
     text.setAttribute("y", y(r.name) + rowH/2 + 4);
     text.setAttribute("text-anchor","end");
-    text.setAttribute("fill","#0f172a");
-    text.setAttribute("font-size","13");
+    text.setAttribute("fill", "#1f1a14");
+    text.setAttribute("font-size", compact ? "11" : "13");
     text.setAttribute("font-weight","700");
     svg.appendChild(text);
   });
 
-  // periods
+  // Focus line
+  if(focusYear >= xDomain[0] && focusYear <= xDomain[1]){
+    const fx = xScale(focusYear);
+    const line = document.createElementNS(svg.namespaceURI, "line");
+    line.setAttribute("x1", fx); line.setAttribute("x2", fx);
+    line.setAttribute("y1", margin.top); line.setAttribute("y2", view.h - margin.bottom);
+    line.setAttribute("stroke", "#c2542c");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("opacity", "0.85");
+    svg.appendChild(line);
+  }
+
+  // Period bars
   regs.forEach(r=>{
     r.periods.forEach(p=>{
       const x1 = xScale(p.start), x2 = xScale(p.end);
       const w = Math.max(1, x2 - x1);
       const rect = document.createElementNS(svg.namespaceURI,"rect");
       rect.setAttribute("x", x1);
-      rect.setAttribute("y", y(r.name) + 4);
+      rect.setAttribute("y", y(r.name) + 5);
       rect.setAttribute("width", w);
-      rect.setAttribute("height", rowH - 8);
-      rect.setAttribute("rx","8"); rect.setAttribute("ry","8");
-      rect.setAttribute("fill", colorFor(p.name));
-      rect.setAttribute("stroke","rgba(0,0,0,0.08)");
+      rect.setAttribute("height", rowH - 10);
+      rect.setAttribute("rx","10"); rect.setAttribute("ry","10");
+      rect.setAttribute("fill", colorForRegion(r.name));
+      rect.setAttribute("opacity", "0.82");
+      rect.setAttribute("stroke","rgba(0,0,0,0.15)");
       rect.classList.add("period");
-      rect.addEventListener("mousemove", (ev)=>{
+      if(selection && selection.type==="period" && selection.region===r.name && selection.period.name===p.name){
+        rect.classList.add("selected");
+      }
+      if(activeStory){
+        const overlap = !(p.end < activeStory.range[0] || p.start > activeStory.range[1]);
+        rect.setAttribute("opacity", overlap ? "0.95" : "0.25");
+      }
+      rect.addEventListener("pointerenter", (ev)=>{
         tip.innerHTML = `<div style="font-weight:700;margin-bottom:2px">${p.name}</div>
           <div style="opacity:.9;font-size:12px">${fmtYear(p.start)} 〜 ${fmtYear(p.end)}</div>
           <div style="opacity:.8;font-size:11px;margin-top:2px">地域：${r.name}</div>`;
@@ -310,25 +739,67 @@ function draw(){
         tip.style.top  = (ev.pageY + 14) + "px";
         tip.style.opacity = 1;
       });
-      rect.addEventListener("mouseleave", ()=> tip.style.opacity = 0);
+      rect.addEventListener("pointerleave", ()=> tip.style.opacity = 0);
+      rect.addEventListener("click", ()=>{
+        selection = {type:"period", region:r.name, period:p};
+        updateInspector();
+        scheduleDraw();
+      });
       svg.appendChild(rect);
 
-      // label inside if room
       const label = document.createElementNS(svg.namespaceURI,"text");
       label.textContent = p.name;
       label.setAttribute("x", x1 + 8);
       label.setAttribute("y", y(r.name) + rowH/2 + 4);
-      label.setAttribute("fill", "#0f172a");
-      label.setAttribute("font-size","11");
+      label.setAttribute("fill", "#1f1a14");
+      label.setAttribute("font-size", compact ? "10" : "11");
       svg.appendChild(label);
-      // remove if too wide (approx)
-      const need = 7 * p.name.length + 16;
+      const need = 7 * p.name.length + 18;
       if (w < need) svg.removeChild(label);
     });
   });
+
+  // Events
+  const activeTagList = Array.from(activeTags);
+  const showAllTags = activeTagList.length === 0;
+  EVENTS.forEach(ev=>{
+    if(!visible[ev.region]) return;
+    if(!showAllTags && !ev.tags.some(t=>activeTags.has(t))) return;
+    if(ev.year < xDomain[0] || ev.year > xDomain[1]) return;
+    const reg = regs.find(r=>r.name===ev.region);
+    if(!reg) return;
+    const cy = y(ev.region) + rowH/2;
+    const cx = xScale(ev.year);
+    const circle = document.createElementNS(svg.namespaceURI, "circle");
+    circle.setAttribute("cx", cx);
+    circle.setAttribute("cy", cy);
+    circle.setAttribute("r", 6);
+    const tagColor = TAGS.find(t=>t.id===ev.tags[0])?.color || "#1f2937";
+    circle.setAttribute("fill", tagColor);
+    circle.classList.add("event-marker");
+    if(selection && selection.type==="event" && selection.event.name===ev.name){
+      circle.classList.add("selected");
+      circle.setAttribute("r", 7.5);
+    }
+    circle.addEventListener("pointerenter", (e)=>{
+      tip.innerHTML = `<div style="font-weight:700;margin-bottom:2px">${ev.name}</div>
+        <div style="opacity:.9;font-size:12px">${fmtYear(ev.year)}</div>
+        <div style="opacity:.8;font-size:11px;margin-top:2px">${ev.region}</div>`;
+      tip.style.left = (e.pageX + 14) + "px";
+      tip.style.top  = (e.pageY + 14) + "px";
+      tip.style.opacity = 1;
+    });
+    circle.addEventListener("pointerleave", ()=> tip.style.opacity = 0);
+    circle.addEventListener("click", ()=>{
+      selection = {type:"event", event:ev};
+      updateInspector();
+      scheduleDraw();
+    });
+    svg.appendChild(circle);
+  });
 }
 
-// ===== Toggles / JSON =====
+// ===== UI Render =====
 function refreshToggles(){
   toggles.innerHTML='';
   data.forEach(r=>{
@@ -337,54 +808,243 @@ function refreshToggles(){
     wrap.style.display='flex'; wrap.style.alignItems='center'; wrap.style.gap='8px'; wrap.style.cursor='pointer';
     wrap.innerHTML = `<input id="${id}" type="checkbox" ${visible[r.name]?'checked':''}> <span>${r.name}</span>`;
     toggles.appendChild(wrap);
-    wrap.querySelector('input').addEventListener('change', (e)=>{ visible[r.name]=e.target.checked; draw(); });
+    wrap.querySelector('input').addEventListener('change', (e)=>{ visible[r.name]=e.target.checked; updateSnapshot(); updateStats(); scheduleDraw(); });
   });
 }
 function resetJSON(){ jsonArea.value = JSON.stringify(data, null, 2); }
-refreshToggles(); resetJSON();
 
-// ===== Zoom & Pan =====
-let isPanning=false, panStartX=0, panStartDomain=[...xDomain];
-svg.addEventListener('mousedown', (e)=>{ isPanning=true; panStartX=e.clientX; panStartDomain=[...xDomain]; e.preventDefault(); });
-window.addEventListener('mouseup', ()=> isPanning=false);
-window.addEventListener('mousemove', (e)=>{
-  if(!isPanning) return;
-  const dx = e.clientX - panStartX;
-  const L = (view.w - margin.left - margin.right);
-  const span = panStartDomain[1] - panStartDomain[0];
-  const shift = -dx / L * span;
-  xDomain = [panStartDomain[0] + shift, panStartDomain[1] + shift];
-  draw();
-});
-svg.addEventListener('wheel', (e)=>{
-  e.preventDefault();
-  const mouseX = e.offsetX;
-  const [s,e2]=xDomain;
-  const L = (view.w - margin.left - margin.right);
-  const t = Math.min(1, Math.max(0, (mouseX - margin.left) / L)); // clamp
-  const span = e2 - s;
-  const factor = e.deltaY < 0 ? 0.85 : 1.15; // zoom in / out
-  const newSpan = span * factor;
-  const newS = s + (span - newSpan)*t;
-  const newE = newS + newSpan;
+function renderTagFilters(){
+  tagFilters.innerHTML='';
+  tagLegend.innerHTML='';
+  TAGS.forEach(tag=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    if(activeTags.has(tag.id)) chip.classList.add('active');
+    chip.innerHTML = `<span class="dot" style="background:${tag.color}"></span>${tag.id}`;
+    chip.addEventListener('click', ()=>{
+      if(activeTags.has(tag.id)) activeTags.delete(tag.id); else activeTags.add(tag.id);
+      renderTagFilters();
+      updateStats();
+      scheduleDraw();
+    });
+    tagFilters.appendChild(chip);
+
+    const legend = document.createElement('span');
+    legend.className = 'chip';
+    legend.innerHTML = `<span class="dot" style="background:${tag.color}"></span>${tag.id}`;
+    tagLegend.appendChild(legend);
+  });
+}
+
+function renderStories(){
+  storyList.innerHTML='';
+  STORIES.forEach(story=>{
+    const card = document.createElement('div');
+    card.className = 'story-card';
+    if(activeStory && activeStory.id === story.id) card.classList.add('active');
+    card.innerHTML = `<div class="story-title">${story.title}</div>
+      <div class="story-meta">${fmtYear(story.range[0])} 〜 ${fmtYear(story.range[1])}</div>
+      <div class="note">${story.summary}</div>`;
+    card.addEventListener('click', ()=>{
+      activeStory = story;
+      xDomain = [...story.range];
+      setFocusYear(story.focus ?? Math.round((story.range[0]+story.range[1])/2));
+      inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
+      renderStories();
+      updateStats();
+      scheduleDraw();
+    });
+    storyList.appendChild(card);
+  });
+}
+
+function renderMissions(){
+  missionsEl.innerHTML='';
+  MISSIONS.forEach(m=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'mission';
+    wrap.innerHTML = `<div class="mission-title">${m.title}</div>
+      <div class="mission-desc">${m.desc}</div>`;
+    const btn = document.createElement('button');
+    btn.className = 'btn small';
+    btn.textContent = 'ジャンプ';
+    btn.addEventListener('click', ()=>{
+      setFocusYear(m.year);
+      centerOnYear(m.year);
+      scheduleDraw();
+    });
+    wrap.appendChild(btn);
+    missionsEl.appendChild(wrap);
+  });
+}
+
+function updateSnapshot(){
+  const rows = data.filter(r=>visible[r.name]).map(r=>{
+    const p = r.periods.find(p=>focusYear >= p.start && focusYear <= p.end);
+    return p ? `<div>・${r.name}：${p.name}</div>` : `<div>・${r.name}：該当なし</div>`;
+  });
+  snapshot.innerHTML = rows.join('');
+}
+
+function updateInspector(){
+  if(!selection){
+    selectionMeta.textContent = 'タップした要素の情報がここに表示されます。';
+    selectionBody.innerHTML = '<div class="note">年を動かすと同時代スナップが更新されます。</div>';
+    return;
+  }
+  if(selection.type === 'period'){
+    const p = selection.period;
+    selectionMeta.textContent = `${selection.region} / ${p.name}`;
+    const tags = (p.tags || []).map(t=>`<span class="tag">${t}</span>`).join(' ');
+    selectionBody.innerHTML = `<div>${fmtYear(p.start)} 〜 ${fmtYear(p.end)}</div>
+      <div>${p.summary || 'この時代の特徴をさらに調べてみよう。'}</div>
+      <div>${tags}</div>`;
+  }
+  if(selection.type === 'event'){
+    const ev = selection.event;
+    selectionMeta.textContent = `${ev.region} / ${ev.name}`;
+    const tags = ev.tags.map(t=>`<span class="tag">${t}</span>`).join(' ');
+    selectionBody.innerHTML = `<div>${fmtYear(ev.year)}</div>
+      <div>${ev.summary}</div>
+      <div>${tags}</div>`;
+  }
+}
+
+function updateStats(){
+  const regs = data.filter(r=>visible[r.name]);
+  statRegions.textContent = `${regs.length}地域`;
+  const activeTagList = Array.from(activeTags);
+  const showAllTags = activeTagList.length === 0;
+  const visibleEvents = EVENTS.filter(ev=>visible[ev.region]).filter(ev=>showAllTags || ev.tags.some(t=>activeTags.has(t)));
+  statEvents.textContent = `${visibleEvents.length}件`;
+  const span = Math.round(xDomain[1] - xDomain[0]);
+  statSpan.textContent = `${span}年`;
+  statStory.textContent = activeStory ? activeStory.title : 'なし';
+  scheduleShareSync();
+}
+
+function setFocusYear(year){
+  focusYear = clamp(year, fullDomain[0], fullDomain[1]);
+  focusLabel.textContent = fmtYear(focusYear);
+  yearSlider.value = focusYear;
+  yearInput.value = focusYear;
+  updateSnapshot();
+  scheduleShareSync();
+}
+
+function centerOnYear(year){
+  const span = xDomain[1] - xDomain[0];
+  let newS = year - span/2;
+  let newE = year + span/2;
+  if(newS < fullDomain[0]){ newE += (fullDomain[0] - newS); newS = fullDomain[0]; }
+  if(newE > fullDomain[1]){ newS -= (newE - fullDomain[1]); newE = fullDomain[1]; }
   xDomain = [newS, newE];
-  draw();
-},{passive:false});
+  inputStart.value = Math.floor(xDomain[0]);
+  inputEnd.value = Math.ceil(xDomain[1]);
+  updateStats();
+}
 
 // ===== Controls =====
-document.getElementById('fit').addEventListener('click', ()=>{ xDomain = domain(); inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]); draw(); });
-document.getElementById('zin').addEventListener('click', ()=>{ svg.dispatchEvent(new WheelEvent('wheel', {deltaY:-100, bubbles:true})); });
-document.getElementById('zout').addEventListener('click', ()=>{ svg.dispatchEvent(new WheelEvent('wheel', {deltaY:100, bubbles:true})); });
+
+const tabButtons = document.querySelectorAll('[data-tab-btn]');
+const panelSections = document.querySelectorAll('[data-tab]');
+function setTab(tab){
+  tabButtons.forEach(btn=> btn.classList.toggle('active', btn.dataset.tabBtn === tab));
+  panelSections.forEach(sec=> sec.classList.toggle('active', sec.dataset.tab === tab));
+}
+
+function setPanelOpen(open){
+  panel.dataset.open = open ? "true" : "false";
+  document.body.dataset.panelOpen = open ? "true" : "false";
+}
+
+tabButtons.forEach(btn=> btn.addEventListener('click', ()=> setTab(btn.dataset.tabBtn)));
+
+document.querySelectorAll('[data-tab-open]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    setTab(btn.dataset.tabOpen);
+    setPanelOpen(true);
+  });
+});
+
+const panelToggle = document.getElementById('panelToggle');
+if(panelToggle){
+  panelToggle.addEventListener('click', ()=>{
+    const next = panel.dataset.open !== "true";
+    setPanelOpen(next);
+  });
+}
+
+if(shareX){
+  shareX.addEventListener('click', ()=>{
+    updateShareUI();
+    const text = buildShareText();
+    const intent = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(intent, '_blank', 'noopener');
+  });
+}
+
+if(copyLink){
+  copyLink.addEventListener('click', async ()=>{
+    updateShareUI();
+    try{
+      await navigator.clipboard.writeText(shareUrl);
+      const prev = copyLink.textContent;
+      copyLink.textContent = 'コピーしました';
+      setTimeout(()=>{ copyLink.textContent = prev; }, 1400);
+    }catch(err){
+      window.prompt('リンクをコピーしてください', shareUrl);
+    }
+  });
+}
+
+document.getElementById('clearStory').addEventListener('click', ()=>{
+  activeStory = null;
+  renderStories();
+  updateStats();
+  scheduleDraw();
+});
+
+document.getElementById('fit').addEventListener('click', ()=>{
+  xDomain = [...fullDomain];
+  inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
+  updateStats();
+  scheduleDraw();
+});
+
+document.getElementById('zin').addEventListener('click', ()=>{
+  const span = xDomain[1] - xDomain[0];
+  const newSpan = span * 0.85;
+  const mid = (xDomain[0] + xDomain[1]) / 2;
+  xDomain = [mid - newSpan/2, mid + newSpan/2];
+  updateStats();
+  scheduleDraw();
+});
+
+document.getElementById('zout').addEventListener('click', ()=>{
+  const span = xDomain[1] - xDomain[0];
+  const newSpan = span * 1.15;
+  const mid = (xDomain[0] + xDomain[1]) / 2;
+  xDomain = [mid - newSpan/2, mid + newSpan/2];
+  updateStats();
+  scheduleDraw();
+});
 
 document.querySelectorAll('.preset').forEach(b=> b.addEventListener('click', ()=>{
   const [s,e] = b.dataset.p.split(',').map(Number);
   inputStart.value = s; inputEnd.value = e;
 }));
+
 document.getElementById('apply').addEventListener('click', ()=>{
   const s = Number(inputStart.value), e = Number(inputEnd.value);
   if (Number.isNaN(s) || Number.isNaN(e) || s>=e){ alert('開始年と終了年を確認してください（開始 < 終了）'); return; }
-  xDomain = [s, e]; draw();
+  xDomain = [s, e];
+  setFocusYear(focusYear);
+  updateStats();
+  scheduleDraw();
 });
+
+// JSON controls
 
 document.getElementById('applyjson').addEventListener('click', ()=>{
   try{
@@ -399,22 +1059,201 @@ document.getElementById('applyjson').addEventListener('click', ()=>{
     data = obj;
     visible = Object.fromEntries(data.map(d=>[d.name,true]));
     refreshToggles();
-    xDomain = domain();
+    fullDomain = domain();
+    xDomain = [...fullDomain];
     inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
-    draw();
+    yearSlider.min = Math.floor(fullDomain[0]); yearSlider.max = Math.ceil(fullDomain[1]);
+    setFocusYear(focusYear);
+    updateSnapshot();
+    updateStats();
+    scheduleDraw();
   }catch(err){
     alert('JSONの読み込みに失敗しました: '+err.message);
   }
 });
+
 document.getElementById('resetjson').addEventListener('click', ()=>{
   data = JSON.parse(JSON.stringify(INITIAL));
   visible = Object.fromEntries(data.map(d=>[d.name,true]));
   refreshToggles();
   resetJSON();
-  xDomain = domain();
+  fullDomain = domain();
+  xDomain = [...fullDomain];
   inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
-  draw();
+  yearSlider.min = Math.floor(fullDomain[0]); yearSlider.max = Math.ceil(fullDomain[1]);
+  setFocusYear(focusYear);
+  updateSnapshot();
+  updateStats();
+  scheduleDraw();
 });
+
+// Search
+searchInput.addEventListener('input', ()=>{
+  const q = searchInput.value.trim().toLowerCase();
+  searchResults.innerHTML = '';
+  if(!q) return;
+  const results = [];
+  data.forEach(r=>{
+    r.periods.forEach(p=>{
+      if(p.name.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)){
+        results.push({type:'period', region:r.name, period:p});
+      }
+    });
+  });
+  EVENTS.forEach(ev=>{
+    if(ev.name.toLowerCase().includes(q) || ev.tags.some(t=>t.toLowerCase().includes(q))){
+      results.push({type:'event', event:ev});
+    }
+  });
+  STORIES.forEach(story=>{
+    if(story.title.toLowerCase().includes(q)){
+      results.push({type:'story', story});
+    }
+  });
+
+  results.slice(0,12).forEach(item=>{
+    const el = document.createElement('div');
+    el.className = 'search-item';
+    if(item.type==='period'){
+      el.innerHTML = `<strong>${item.period.name}</strong><small>${item.region}</small>`;
+      el.addEventListener('click', ()=>{
+        selection = {type:'period', region:item.region, period:item.period};
+        updateInspector();
+        const mid = (item.period.start + item.period.end)/2;
+        setFocusYear(Math.round(mid));
+        centerOnYear(mid);
+        scheduleDraw();
+      });
+    }
+    if(item.type==='event'){
+      el.innerHTML = `<strong>${item.event.name}</strong><small>${fmtYear(item.event.year)} / ${item.event.region}</small>`;
+      el.addEventListener('click', ()=>{
+        selection = {type:'event', event:item.event};
+        updateInspector();
+        setFocusYear(item.event.year);
+        centerOnYear(item.event.year);
+        scheduleDraw();
+      });
+    }
+    if(item.type==='story'){
+      el.innerHTML = `<strong>${item.story.title}</strong><small>ストーリー</small>`;
+      el.addEventListener('click', ()=>{
+        activeStory = item.story;
+        xDomain = [...item.story.range];
+        setFocusYear(item.story.focus ?? Math.round((item.story.range[0]+item.story.range[1])/2));
+        inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
+        renderStories();
+        updateStats();
+        scheduleDraw();
+      });
+    }
+    searchResults.appendChild(el);
+  });
+});
+
+// Focus year controls
+yearSlider.addEventListener('input', ()=>{
+  setFocusYear(Number(yearSlider.value));
+  scheduleDraw();
+});
+
+yearInput.addEventListener('change', ()=>{
+  setFocusYear(Number(yearInput.value));
+  scheduleDraw();
+});
+
+document.getElementById('jumpYear').addEventListener('click', ()=>{
+  setFocusYear(Number(yearInput.value));
+  centerOnYear(Number(yearInput.value));
+  scheduleDraw();
+});
+
+document.getElementById('centerYear').addEventListener('click', ()=>{
+  centerOnYear(Number(yearInput.value));
+  scheduleDraw();
+});
+
+// ===== Pan & Zoom (Pointer) =====
+let pointers = new Map();
+let panStartX = 0;
+let panStartDomain = null;
+let pinchStart = null;
+
+function distance(a,b){
+  const dx = a.x - b.x; const dy = a.y - b.y;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+svg.addEventListener('pointerdown', (e)=>{
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  svg.setPointerCapture(e.pointerId);
+  if(pointers.size === 1){
+    panStartX = e.clientX;
+    panStartDomain = [...xDomain];
+  }
+  if(pointers.size === 2){
+    const pts = Array.from(pointers.values());
+    pinchStart = {
+      dist: distance(pts[0], pts[1]),
+      midX: (pts[0].x + pts[1].x)/2,
+      domain: [...xDomain]
+    };
+  }
+});
+
+svg.addEventListener('pointermove', (e)=>{
+  if(!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const L = (view.w - margin.left - margin.right);
+  if(pointers.size === 1 && panStartDomain){
+    const dx = e.clientX - panStartX;
+    const span = panStartDomain[1] - panStartDomain[0];
+    const shift = -dx / L * span;
+    xDomain = [panStartDomain[0] + shift, panStartDomain[1] + shift];
+    updateStats();
+    scheduleDraw();
+  }
+  if(pointers.size === 2 && pinchStart){
+    const pts = Array.from(pointers.values());
+    const dist = distance(pts[0], pts[1]);
+    const factor = pinchStart.dist / dist;
+    const span0 = pinchStart.domain[1] - pinchStart.domain[0];
+    const span = span0 * factor;
+    const midX = (pts[0].x + pts[1].x)/2;
+    const t = clamp((midX - margin.left) / L, 0, 1);
+    const newS = pinchStart.domain[0] + (span0 - span) * t;
+    xDomain = [newS, newS + span];
+    updateStats();
+    scheduleDraw();
+  }
+});
+
+svg.addEventListener('pointerup', (e)=>{
+  pointers.delete(e.pointerId);
+  if(pointers.size < 2) pinchStart = null;
+  if(pointers.size === 0) panStartDomain = null;
+});
+svg.addEventListener('pointercancel', (e)=>{
+  pointers.delete(e.pointerId);
+  if(pointers.size < 2) pinchStart = null;
+  if(pointers.size === 0) panStartDomain = null;
+});
+
+svg.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  const mouseX = e.offsetX;
+  const [s,e2]=xDomain;
+  const L = (view.w - margin.left - margin.right);
+  const t = clamp((mouseX - margin.left) / L, 0, 1);
+  const span = e2 - s;
+  const factor = e.deltaY < 0 ? 0.85 : 1.15;
+  const newSpan = span * factor;
+  const newS = s + (span - newSpan) * t;
+  xDomain = [newS, newS + newSpan];
+  updateStats();
+  scheduleDraw();
+},{passive:false});
 
 // ===== Export =====
 document.getElementById('exsvg').addEventListener('click', ()=>{
@@ -436,7 +1275,7 @@ document.getElementById('expng').addEventListener('click', ()=>{
     canvas.height = svg.clientHeight * 2;
     const ctx = canvas.getContext('2d');
     ctx.scale(2,2);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#fff7ec';
     ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.drawImage(img,0,0);
     URL.revokeObjectURL(url);
@@ -451,9 +1290,24 @@ document.getElementById('expng').addEventListener('click', ()=>{
 });
 
 // ===== init =====
-window.addEventListener('resize', draw);
-xDomain = domain();
-inputStart.value = Math.floor(xDomain[0]); inputEnd.value = Math.ceil(xDomain[1]);
+window.addEventListener('resize', scheduleDraw);
+
+renderMissions();
+resetJSON();
+applyParamsFromUrl();
+renderTagFilters();
+renderStories();
+refreshToggles();
+updateInspector();
+
+yearSlider.min = Math.floor(fullDomain[0]);
+yearSlider.max = Math.ceil(fullDomain[1]);
+inputStart.value = Math.floor(xDomain[0]);
+inputEnd.value = Math.ceil(xDomain[1]);
+setFocusYear(focusYear);
+updateSnapshot();
+updateStats();
+updateShareUI();
 draw();
 </script>
 </body>
